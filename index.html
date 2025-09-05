@@ -136,8 +136,8 @@
         if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal"; // Level
       }
       else if (key === "kantin") {
-        if (i === 1) return lc.includes("nyala") ? "status-on" : "status-off";    // Pompa
-        if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal"; // Level
+        if (i === 1) return lc.includes("nyala") ? "status-on" : "status-off";    // Status Pompa
+        if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal"; // Level Tandon
         if (i === 4) return lc.includes("trip") ? "status-trip" : "";
       }
       else if (key === "lt6") {
@@ -183,7 +183,7 @@
       fetch(url)
         .then(res => res.text())
         .then(data => {
-          const rows = data.trim().split("\n").slice(1, 2); // Ambil 1 baris terbaru
+          const rows = data.trim().split("\n").slice(1, 2); // hanya ambil baris terbaru
           document.getElementById(tableId).innerHTML = createTableHTML(rows, key);
           updateTimeText(updateId);
           document.getElementById(loaderId).style.display = "none";
