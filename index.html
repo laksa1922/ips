@@ -1,191 +1,296 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Pompa & Tandon</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
-      margin: 0; padding: 0;
-      background: #121212;
-      color: #f1f1f1;
-      transition: 0.3s;
+      background: #111;
+      color: #eee;
+      margin: 10px;
     }
-    header {
-      background: #1e1e1e;
-      padding: 15px;
+    h1 {
       text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      border-bottom: 2px solid #444;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+      font-size: 2em;
+      margin-bottom: 20px;
     }
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 20px;
-      padding: 20px;
-    }
-    .card {
-      background: #1e1e1e;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      transition: 0.3s;
-    }
-    .card:hover { transform: translateY(-5px); }
-    h2 {
-      margin-top: 0;
-      font-size: 20px;
-      border-bottom: 1px solid #333;
-      padding-bottom: 5px;
-    }
-    .status {
-      font-size: 18px;
-      margin: 10px 0;
-    }
-    .status span {
-      font-weight: bold;
-      padding: 5px 10px;
+    .data-section {
+      background: #1a1a1a;
+      margin-bottom: 30px;
       border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+      padding: 15px;
     }
-    .on { background: #28a745; color: white; animation: pulse 1.5s infinite; }
-    .off { background: #dc3545; color: white; }
+    h2 {
+      font-size: 1.1em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .last-update {
+      font-size: 0.85em;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95em;
+      background: #222;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #333;
+    }
+    tr:hover { background: #2a2a2a; }
+
+    .status-on { color: #0f0; font-weight: bold; }
+    .status-off { color: #f00; font-weight: bold; }
+    .status-normal { color: #0af; }
+    .status-penuh { color: #f0f; }
+    .status-trip {
+      background: #a00;
+      color: #fff;
+      padding: 4px 6px;
+      border-radius: 5px;
+    }
+
+    .glow {
+      animation: glowAnim 1.5s ease-in-out;
+    }
+    @keyframes glowAnim {
+      0%   { background-color: rgba(0, 255, 255, 0.2); }
+      50%  { background-color: rgba(0, 255, 255, 0.6); }
+      100% { background-color: transparent; }
+    }
+
+    .loader {
+      width: 10px;
+      height: 10px;
+      background: #0ff;
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+      margin-left: 10px;
+    }
     @keyframes pulse {
-      0% { box-shadow: 0 0 5px #28a745; }
-      50% { box-shadow: 0 0 20px #28a745; }
-      100% { box-shadow: 0 0 5px #28a745; }
+      0% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.5; }
     }
-    .warning { color: #ff9800; font-weight: bold; }
-    .critical { color: #f44336; font-weight: bold; }
-    .info { font-size: 14px; color: #bbb; margin-top: 5px; }
-    .dark-toggle {
+
+    /* === TOAST NOTIFIKASI === */
+    .toast-container {
       position: fixed;
-      top: 10px; right: 10px;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #444;
-      color: white;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
     }
-    canvas { margin-top: 10px; }
+    .toast {
+      background: #222;
+      color: #0ff;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-left: 5px solid #0ff;
+      border-radius: 6px;
+      box-shadow: 0 0 10px #000;
+      animation: slideIn 0.5s ease, fadeOut 0.5s ease 4.5s forwards;
+    }
+    .toast.warning { border-color: #ff0; color: #ff0; }
+    .toast.danger { border-color: #f00; color: #f88; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    /* === LOG EVENT === */
+    #log {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 0.9em;
+    }
+    #log div {
+      margin-bottom: 5px;
+      padding: 4px 6px;
+      border-left: 4px solid #0ff;
+    }
+    #log .warning { border-color: #ff0; color: #ff0; }
+    #log .danger { border-color: #f00; color: #f88; }
   </style>
 </head>
 <body>
-  <header>📊 Dashboard Monitoring Pompa & Tandon</header>
-  <button class="dark-toggle" onclick="toggleDarkMode()">🌙 Mode Gelap</button>
-  
-  <div class="container">
-    <!-- Joglo -->
-    <div class="card">
-      <h2>🏠 Joglo</h2>
-      <div class="status">Pompa: <span id="pompaJoglo">Loading...</span></div>
-      <div>Level Tandon: <span id="tandonJoglo">-</span>%</div>
-      <div>Suhu Pompa: <span id="suhuJoglo">-</span> °C</div>
-      <div class="info">📶 RSSI: <span id="rssiJoglo">-</span> | 🌐 IP: <span id="ipJoglo">-</span></div>
-      <canvas id="chartJoglo" height="100"></canvas>
-    </div>
+  <h1>Dashboard Pompa & Tandon</h1>
 
-    <!-- Kantin -->
-    <div class="card">
-      <h2>🍴 Kantin</h2>
-      <div class="status">Pompa: <span id="pompaKantin">Loading...</span></div>
-      <div>Level Tandon: <span id="tandonKantin">-</span>%</div>
-      <div>Suhu Pompa: <span id="suhuKantin">-</span> °C</div>
-      <div class="info">📶 RSSI: <span id="rssiKantin">-</span> | 🌐 IP: <span id="ipKantin">-</span></div>
-      <canvas id="chartKantin" height="100"></canvas>
-    </div>
-
-    <!-- Lantai 6 -->
-    <div class="card">
-      <h2>🏢 Lantai 6</h2>
-      <div class="status">Pompa: <span id="pompaLt6">Loading...</span></div>
-      <div>Level Tandon: <span id="tandonLt6">-</span>%</div>
-      <div>Suhu Pompa: <span id="suhuLt6">-</span> °C</div>
-      <div class="info">📶 RSSI: <span id="rssiLt6">-</span> | 🌐 IP: <span id="ipLt6">-</span></div>
-      <canvas id="chartLt6" height="100"></canvas>
-    </div>
+  <div class="data-section" id="section-joglo">
+    <h2>📍 Lokasi: Joglo <span class="loader" id="loader-joglo"></span></h2>
+    <div class="last-update" id="update-joglo">Terakhir update: -</div>
+    <div id="table-joglo">Memuat data...</div>
   </div>
 
+  <div class="data-section" id="section-kantin">
+    <h2>📍 Lokasi: Kantin <span class="loader" id="loader-kantin"></span></h2>
+    <div class="last-update" id="update-kantin">Terakhir update: -</div>
+    <div id="table-kantin">Memuat data...</div>
+  </div>
+
+  <div class="data-section" id="section-lt6">
+    <h2>📍 Lokasi: Lantai 6 <span class="loader" id="loader-lt6"></span></h2>
+    <div class="last-update" id="update-lt6">Terakhir update: -</div>
+    <div id="table-lt6">Memuat data...</div>
+  </div>
+
+  <h2>📜 Log Notifikasi</h2>
+  <div id="log"></div>
+
+  <div class="toast-container" id="toast-container"></div>
+
   <script>
-    // Link Google Sheets CSV
-    const sheets = {
-      joglo: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTf9RrlaFN7h2UMkV_KRWJ0hU53Uwp2kCyjwduvxkvhv7rqJc7j71mXBai3hF3aW6R7EGYNzi5TWQSs/pub?gid=0&single=true&output=csv",
-      kantin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRp3hZufwknJEpOfvD_6YlB_lQEWwcJ-hMgKVfNoV1-jJAKeQB979Acs69cXCKCZVkf01OhwFn8fHlD/pub?gid=0&single=true&output=csv",
-      lt6: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRp3hZufwknJEpOfvD_6YlB_lQEWwcJ-hMgKVfNoV1-jJAKeQB979Acs69cXCKCZVkf01OhwFn8fHlD/pub?gid=0&single=true&output=csv"
+    const sources = {
+      joglo: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTf9RrlaFN7h2UMkV_KRWJ0hU53Uwp2kCyjwduvxkvhv7rqJc7j71mXBai3hF3aW6R7EGYNzi5TWQSs/pub?gid=0&single=true&output=csv',
+      kantin: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRp3hZufwknJEpOfvD_6YlB_lQEWwcJ-hMgKVfNoV1-jJAKeQB979Acs69cXCKCZVkf01OhwFn8fHlD/pub?gid=0&single=true&output=csv',
+      lt6: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS2q5WkdqPKnd4D37-45O3LSc2KC7nMfRVDWz2crolUEyUOgnhuHxjGgU42BG0q_ddnl8vw_DJ_mcRV/pub?gid=0&single=true&output=csv',
     };
 
-    async function fetchCSV(url) {
-      const res = await fetch(url);
-      const text = await res.text();
-      const rows = text.trim().split("\n").map(r => r.split(","));
-      return rows;
+    const previousData = {
+      joglo: [],
+      kantin: [],
+      lt6: []
+    };
+
+    // === SOUND ALERT ===
+    const alertSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+
+    function showToast(msg, type="info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
     }
 
-    async function updateDashboard() {
-      await updateCard("Joglo", sheets.joglo);
-      await updateCard("Kantin", sheets.kantin);
-      await updateCard("Lt6", sheets.lt6);
+    function addLog(msg, type="info") {
+      const log = document.getElementById("log");
+      const entry = document.createElement("div");
+      entry.className = type;
+      const time = new Date().toLocaleTimeString("id-ID");
+      entry.textContent = `[${time}] ${msg}`;
+      log.prepend(entry); // log terbaru di atas
     }
 
-    async function updateCard(lokasi, url) {
-      try {
-        const rows = await fetchCSV(url);
-        const last = rows[rows.length - 1]; // ambil baris terakhir
-        // sesuaikan urutan kolom dengan sheet kamu
-        let [waktu, pompa, level, suhu, rssi, ip] = last;
-
-        document.getElementById(`pompa${lokasi}`).textContent = pompa;
-        document.getElementById(`pompa${lokasi}`).className = pompa === "ON" ? "on" : "off";
-        document.getElementById(`tandon${lokasi}`).textContent = level;
-        document.getElementById(`suhu${lokasi}`).textContent = suhu;
-        document.getElementById(`rssi${lokasi}`).textContent = rssi;
-        document.getElementById(`ip${lokasi}`).textContent = ip;
-
-        // Warning suhu
-        if(suhu >= 45) document.getElementById(`suhu${lokasi}`).className = "critical";
-        else if(suhu >= 40) document.getElementById(`suhu${lokasi}`).className = "warning";
-        else document.getElementById(`suhu${lokasi}`).className = "";
-
-        // Chart update
-        const chartId = `chart${lokasi}`;
-        if (!window[chartId]) {
-          window[chartId] = new Chart(document.getElementById(chartId), {
-            type: 'bar',
-            data: {
-              labels: ["Level", "Suhu"],
-              datasets: [{
-                data: [level, suhu]
-              }]
-            },
-            options: { responsive: true, plugins: { legend: { display: false } } }
-          });
-        } else {
-          window[chartId].data.datasets[0].data = [level, suhu];
-          window[chartId].update();
-        }
-      } catch (e) {
-        console.error(`Gagal load data ${lokasi}`, e);
+    function smartNotification(key, i, val) {
+      const lc = val.toLowerCase();
+      if (lc.includes("trip")) {
+        showToast(`⚠️ ${key.toUpperCase()} - MCB TRIP!`, "danger");
+        addLog(`${key.toUpperCase()} - MCB TRIP!`, "danger");
+        alertSound.play();
+      }
+      else if (lc.includes("nyala")) {
+        showToast(`✅ Pompa ${key.toUpperCase()} menyala`, "info");
+        addLog(`Pompa ${key.toUpperCase()} menyala`, "info");
+      }
+      else if (lc.includes("mati") || lc.includes("off")) {
+        showToast(`🛑 Pompa ${key.toUpperCase()} mati`, "warning");
+        addLog(`Pompa ${key.toUpperCase()} mati`, "warning");
+      }
+      else if (!isNaN(val) && parseFloat(val) > 70 && i === 3) {
+        // Suhu > 70°C → ALERT
+        showToast(`🔥 Suhu ${key.toUpperCase()} tinggi: ${val}°C`, "danger");
+        addLog(`Suhu ${key.toUpperCase()} tinggi: ${val}°C`, "danger");
+        alertSound.play();
       }
     }
 
-    // auto update tiap 10 detik
-    setInterval(updateDashboard, 10000);
-    updateDashboard();
-
-    // Dark mode toggle
-    function toggleDarkMode() {
-      if (document.body.style.background === "white") {
-        document.body.style.background = "#121212";
-        document.body.style.color = "#f1f1f1";
-      } else {
-        document.body.style.background = "white";
-        document.body.style.color = "black";
+    function applyStatusClass(i, val, key) {
+      const lc = val.toLowerCase();
+      if (key === "joglo") {
+        if (i === 1) return lc.includes("nyala") ? "status-on" : "status-off";
+        if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal";
       }
+      else if (key === "kantin") {
+        if (i === 1) return lc.includes("nyala") ? "status-on" : "status-off";
+        if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal";
+        if (i === 4) return lc.includes("trip") ? "status-trip" : "";
+      }
+      else if (key === "lt6") {
+        if (i === 1) return lc.includes("penuh") ? "status-penuh" : "status-normal";
+      }
+      return "";
     }
+
+    function getHeaders(key) {
+      if (key === "joglo") return ["Waktu", "Status Pompa", "Level Tandon", "Suhu Pompa", "RSSI", "IP Address"];
+      if (key === "kantin") return ["Waktu", "Status Pompa", "Level Tandon", "Suhu Pompa", "MCB", "RSSI", "IP Address"];
+      if (key === "lt6") return ["Waktu", "Level Tandon"];
+      return [];
+    }
+
+    function createTableHTML(dataArr, key) {
+      if (!dataArr.length) return "Data tidak tersedia.";
+      const headers = getHeaders(key);
+      const cells = dataArr[0].split(",").slice(0, headers.length);
+      const rowHTML = cells.map((val, i) => {
+        const last = previousData[key][i];
+        const changed = last !== undefined && last !== val;
+        previousData[key][i] = val;
+        if (changed) smartNotification(key, i, val);
+        const cls = `${changed ? "glow" : ""} ${applyStatusClass(i, val, key)}`;
+        return `<td class="${cls}">${val}</td>`;
+      }).join("");
+      return `<table><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr><tr>${rowHTML}</tr></table>`;
+    }
+
+    function updateTimeText(id) {
+      const now = new Date();
+      const formatted = now.toLocaleTimeString("id-ID");
+      document.getElementById(id).textContent = `Terakhir update: ${formatted}`;
+    }
+
+    function fetchAndDisplayCSV(url, key) {
+      const tableId = "table-" + key;
+      const loaderId = "loader-" + key;
+      const updateId = "update-" + key;
+
+      document.getElementById(loaderId).style.display = "inline-block";
+
+      fetch(url)
+        .then(res => res.text())
+        .then(data => {
+          const rows = data.trim().split("\n").slice(1, 2);
+          document.getElementById(tableId).innerHTML = createTableHTML(rows, key);
+          updateTimeText(updateId);
+          document.getElementById(loaderId).style.display = "none";
+        })
+        .catch(err => {
+          document.getElementById(tableId).innerHTML = "<i style='color:red'>Gagal memuat data.</i>";
+          document.getElementById(loaderId).style.display = "none";
+        });
+    }
+
+    function refreshAll() {
+      fetchAndDisplayCSV(sources.joglo, "joglo");
+      fetchAndDisplayCSV(sources.kantin, "kantin");
+      fetchAndDisplayCSV(sources.lt6, "lt6");
+    }
+
+    refreshAll();
+    setInterval(refreshAll, 10000);
   </script>
 </body>
 </html>
