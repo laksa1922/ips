@@ -88,10 +88,50 @@
       100% { transform: scale(1); opacity: 0.5; }
     }
 
-    @media (max-width: 768px) {
-      h1 { font-size: 1.5em; }
-      table, th, td { font-size: 0.8em; }
+    /* === TOAST NOTIFIKASI === */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
     }
+    .toast {
+      background: #222;
+      color: #0ff;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-left: 5px solid #0ff;
+      border-radius: 6px;
+      box-shadow: 0 0 10px #000;
+      animation: slideIn 0.5s ease, fadeOut 0.5s ease 4.5s forwards;
+    }
+    .toast.warning { border-color: #ff0; color: #ff0; }
+    .toast.danger { border-color: #f00; color: #f88; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
+    /* === LOG EVENT === */
+    #log {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 0.9em;
+    }
+    #log div {
+      margin-bottom: 5px;
+      padding: 4px 6px;
+      border-left: 4px solid #0ff;
+    }
+    #log .warning { border-color: #ff0; color: #ff0; }
+    #log .danger { border-color: #f00; color: #f88; }
   </style>
 </head>
 <body>
@@ -115,6 +155,11 @@
     <div id="table-lt6">Memuat data...</div>
   </div>
 
+  <h2>📜 Log Notifikasi</h2>
+  <div id="log"></div>
+
+  <div class="toast-container" id="toast-container"></div>
+
   <script>
     const sources = {
       joglo: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTf9RrlaFN7h2UMkV_KRWJ0hU53Uwp2kCyjwduvxkvhv7rqJc7j71mXBai3hF3aW6R7EGYNzi5TWQSs/pub?gid=0&single=true&output=csv',
@@ -128,20 +173,63 @@
       lt6: []
     };
 
+    // === SOUND ALERT ===
+    const alertSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+
+    function showToast(msg, type="info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    function addLog(msg, type="info") {
+      const log = document.getElementById("log");
+      const entry = document.createElement("div");
+      entry.className = type;
+      const time = new Date().toLocaleTimeString("id-ID");
+      entry.textContent = `[${time}] ${msg}`;
+      log.prepend(entry); // log terbaru di atas
+    }
+
+    function smartNotification(key, i, val) {
+      const lc = val.toLowerCase();
+      if (lc.includes("trip")) {
+        showToast(`⚠️ ${key.toUpperCase()} - MCB TRIP!`, "danger");
+        addLog(`${key.toUpperCase()} - MCB TRIP!`, "danger");
+        alertSound.play();
+      }
+      else if (lc.includes("nyala")) {
+        showToast(`✅ Pompa ${key.toUpperCase()} menyala`, "info");
+        addLog(`Pompa ${key.toUpperCase()} menyala`, "info");
+      }
+      else if (lc.includes("mati") || lc.includes("off")) {
+        showToast(`🛑 Pompa ${key.toUpperCase()} mati`, "warning");
+        addLog(`Pompa ${key.toUpperCase()} mati`, "warning");
+      }
+      else if (!isNaN(val) && parseFloat(val) > 70 && i === 3) {
+        // Suhu > 70°C → ALERT
+        showToast(`🔥 Suhu ${key.toUpperCase()} tinggi: ${val}°C`, "danger");
+        addLog(`Suhu ${key.toUpperCase()} tinggi: ${val}°C`, "danger");
+        alertSound.play();
+      }
+    }
+
     function applyStatusClass(i, val, key) {
       const lc = val.toLowerCase();
-
       if (key === "joglo") {
-        if (i === 1) return lc.includes("nyala") ? "status-on" : "status-off";    // Status Pompa
-        if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal"; // Level
+        if (i === 1) return lc.includes("nyala") ? "status-on" : "status-off";
+        if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal";
       }
       else if (key === "kantin") {
-        if (i === 1) return lc.includes("nyala") ? "status-on" : "status-off";    // Status Pompa
-        if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal"; // Level Tandon
+        if (i === 1) return lc.includes("nyala") ? "status-on" : "status-off";
+        if (i === 2) return lc.includes("penuh") ? "status-penuh" : "status-normal";
         if (i === 4) return lc.includes("trip") ? "status-trip" : "";
       }
       else if (key === "lt6") {
-        if (i === 1) return lc.includes("penuh") ? "status-penuh" : "status-normal"; // Level
+        if (i === 1) return lc.includes("penuh") ? "status-penuh" : "status-normal";
       }
       return "";
     }
@@ -156,11 +244,12 @@
     function createTableHTML(dataArr, key) {
       if (!dataArr.length) return "Data tidak tersedia.";
       const headers = getHeaders(key);
-      const cells = dataArr[0].split(",").slice(0, headers.length); // batasi kolom sesuai header
+      const cells = dataArr[0].split(",").slice(0, headers.length);
       const rowHTML = cells.map((val, i) => {
         const last = previousData[key][i];
         const changed = last !== undefined && last !== val;
         previousData[key][i] = val;
+        if (changed) smartNotification(key, i, val);
         const cls = `${changed ? "glow" : ""} ${applyStatusClass(i, val, key)}`;
         return `<td class="${cls}">${val}</td>`;
       }).join("");
@@ -183,7 +272,7 @@
       fetch(url)
         .then(res => res.text())
         .then(data => {
-          const rows = data.trim().split("\n").slice(1, 2); // hanya ambil baris terbaru
+          const rows = data.trim().split("\n").slice(1, 2);
           document.getElementById(tableId).innerHTML = createTableHTML(rows, key);
           updateTimeText(updateId);
           document.getElementById(loaderId).style.display = "none";
