@@ -4,70 +4,82 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Pompa & Tandon</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg: #f5f7fa;
-      --text: #333;
-      --card: #fff;
-      --card-shadow: rgba(0,0,0,0.08);
-      --table-head: #f0f2f5;
-      --table-border: #eaeaea;
+      --bg: #f0f4f9;
+      --text: #222;
+      --card: rgba(255,255,255,0.85);
+      --card-border: rgba(0,0,0,0.1);
+      --head: linear-gradient(135deg, #2c3e50, #34495e);
     }
     body.dark {
-      --bg: #111;
-      --text: #eee;
-      --card: #1e1e1e;
-      --card-shadow: rgba(0,0,0,0.4);
-      --table-head: #2a2a2a;
-      --table-border: #333;
+      --bg: #0f172a;
+      --text: #e2e8f0;
+      --card: rgba(30,30,40,0.8);
+      --card-border: rgba(255,255,255,0.1);
+      --head: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     }
 
     body {
       margin: 0;
-      padding: 20px;
       font-family: "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.5s, color 0.5s;
     }
 
-    h1 {
+    header {
+      background: var(--head);
+      color: #fff;
       text-align: center;
-      font-size: 2em;
-      margin-bottom: 25px;
+      padding: 20px;
+      font-size: 1.6em;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
-    /* Tombol dark mode pojok kanan */
+    /* Tombol dark mode */
     .toggle-dark {
       position: fixed;
       top: 15px;
       right: 15px;
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       border: none;
       background: #3498db;
       color: #fff;
-      font-size: 18px;
+      font-size: 20px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      transition: 0.3s;
       z-index: 1000;
     }
-    .toggle-dark:hover { background: #2980b9; transform: rotate(15deg); }
+    .toggle-dark:hover { transform: rotate(20deg) scale(1.1); background: #2980b9; }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 20px;
+    }
 
     .card {
       background: var(--card);
-      border-radius: 14px;
-      box-shadow: 0 4px 10px var(--card-shadow);
-      margin-bottom: 20px;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
       padding: 18px;
-      transition: transform 0.2s, background 0.3s;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease-in-out;
     }
-    .card:hover { transform: translateY(-3px); }
+    .card:hover { transform: translateY(-5px) scale(1.01); }
 
     .card-header {
       display: flex;
@@ -75,15 +87,29 @@
       align-items: center;
       font-weight: bold;
       font-size: 1.1em;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .status-light {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+    }
+    .green { background: #2ecc71; }
+    .red   { background: #e74c3c; }
+    .yellow{ background: #f1c40f; }
+    @keyframes blink {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
     }
 
     .last-update {
-      font-size: 0.9em;
-      color: #777;
+      font-size: 0.85em;
       margin-bottom: 12px;
+      color: #888;
     }
-    body.dark .last-update { color: #aaa; }
+    body.dark .last-update { color: #bbb; }
 
     table {
       width: 100%;
@@ -92,79 +118,57 @@
     }
     th, td {
       padding: 8px 10px;
-      border-bottom: 1px solid var(--table-border);
+      border-bottom: 1px solid var(--card-border);
       text-align: center;
     }
-    th {
-      background: var(--table-head);
-      font-weight: 600;
-    }
-    tr:hover td { background: rgba(0,0,0,0.03); }
-    body.dark tr:hover td { background: rgba(255,255,255,0.05); }
+    th { background: rgba(0,0,0,0.05); }
+    body.dark th { background: rgba(255,255,255,0.05); }
 
     .badge {
-      padding: 3px 8px;
+      padding: 4px 8px;
       border-radius: 6px;
       font-weight: bold;
-      font-size: 0.85em;
+      font-size: 0.8em;
       color: #fff;
       display: inline-block;
-      min-width: 50px;
+      min-width: 55px;
     }
     .on    { background: #27ae60; }
-    .off   { background: #e74c3c; }
+    .off   { background: #c0392b; }
     .normal{ background: #2980b9; }
-    .penuh { background: #9b59b6; }
-    .trip  { background: #c0392b; }
+    .penuh { background: #8e44ad; }
+    .trip  { background: #d35400; }
 
-    .loader {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #3498db;
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { transform: scale(1); opacity: .6; }
-      50% { transform: scale(1.5); opacity: 1; }
-    }
-
-    .changed {
-      animation: flashChange 1.5s ease-in-out;
-    }
-    @keyframes flashChange {
-      0%   { background: rgba(52,152,219,0.2); }
-      50%  { background: rgba(52,152,219,0.6); }
-      100% { background: transparent; }
-    }
-
-    @media (max-width: 768px) {
-      table, th, td { font-size: 0.8em; }
+    canvas {
+      margin-top: 15px;
     }
   </style>
 </head>
 <body>
-  <!-- Tombol Dark Mode -->
+  <header>📊 Dashboard Monitoring Pompa & Tandon</header>
   <button class="toggle-dark" onclick="toggleDarkMode()">🌙</button>
 
-  <h1>📊 Dashboard Pompa & Tandon</h1>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">📍 Joglo <div class="status-light green"></div></div>
+      <div class="last-update" id="update-joglo">Update: -</div>
+      <div id="table-joglo">Memuat data...</div>
+      <canvas id="chart-joglo" height="120"></canvas>
+    </div>
 
-  <div class="card" id="section-joglo">
-    <div class="card-header">📍 Joglo <div class="loader" id="loader-joglo"></div></div>
-    <div class="last-update" id="update-joglo">Terakhir update: -</div>
-    <div id="table-joglo">Memuat data...</div>
-  </div>
+    <div class="card">
+      <div class="card-header">📍 Kantin <div class="status-light yellow"></div></div>
+      <div class="last-update" id="update-kantin">Update: -</div>
+      <div id="table-kantin">Memuat data...</div>
+      <canvas id="chart-kantin" height="120"></canvas>
+    </div>
 
-  <div class="card" id="section-kantin">
-    <div class="card-header">📍 Kantin <div class="loader" id="loader-kantin"></div></div>
-    <div class="last-update" id="update-kantin">Terakhir update: -</div>
-    <div id="table-kantin">Memuat data...</div>
-  </div>
-
-  <div class="card" id="section-lt6">
-    <div class="card-header">📍 Lantai 6 <div class="loader" id="loader-lt6"></div></div>
-    <div class="last-update" id="update-lt6">Terakhir update: -</div>
-    <div id="table-lt6">Memuat data...</div>
+    <div class="card">
+      <div class="card-header">📍 Lantai 6 <div class="status-light red"></div></div>
+      <div class="last-update" id="update-lt6">Update: -</div>
+      <div id="table-lt6">Memuat data...</div>
+      <canvas id="chart-lt6" height="120"></canvas>
+    </div>
   </div>
 
   <script>
@@ -175,6 +179,7 @@
     };
 
     const lastData = { joglo: [], kantin: [], lt6: [] };
+    const charts = {};
 
     function applyStatus(val, key, i) {
       const lc = val.toLowerCase();
@@ -207,9 +212,7 @@
 
       const rowHTML = cells.map((val, i) => {
         const status = applyStatus(val, key, i);
-        const changed = lastData[key][i] !== undefined && lastData[key][i] !== val;
-        lastData[key][i] = val;
-        return `<td class="${changed ? "changed" : ""}">${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
+        return `<td>${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
       }).join("");
 
       return `
@@ -221,27 +224,56 @@
 
     function updateTimeText(id) {
       const now = new Date().toLocaleTimeString("id-ID");
-      document.getElementById(id).textContent = "Terakhir update: " + now;
+      document.getElementById(id).textContent = "Update: " + now;
     }
 
     function fetchAndDisplayCSV(url, key) {
       const tableId = "table-" + key;
-      const loaderId = "loader-" + key;
       const updateId = "update-" + key;
-      document.getElementById(loaderId).style.display = "inline-block";
 
       fetch(url)
         .then(res => res.text())
         .then(data => {
-          const rows = data.trim().split("\n").slice(1, 2);
+          const rows = data.trim().split("\n").slice(1, 6); // ambil 5 data terakhir
           document.getElementById(tableId).innerHTML = createTableHTML(rows, key);
           updateTimeText(updateId);
-          document.getElementById(loaderId).style.display = "none";
+          updateChart(key, rows);
         })
         .catch(() => {
-          document.getElementById(tableId).innerHTML = "<i style='color:red'>Gagal memuat data.</i>";
-          document.getElementById(loaderId).style.display = "none";
+          document.getElementById(tableId).innerHTML = "<i style='color:red'>⚠️ Data gagal dimuat</i>";
         });
+    }
+
+    function updateChart(key, rows) {
+      const ctx = document.getElementById("chart-" + key).getContext("2d");
+      const labels = rows.map(r => r.split(",")[0]);
+      const values = rows.map(r => parseFloat(r.split(",")[3]) || 0);
+
+      if (!charts[key]) {
+        charts[key] = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [{
+              label: "Suhu / Level",
+              data: values,
+              borderColor: "#3498db",
+              backgroundColor: "rgba(52,152,219,0.2)",
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      } else {
+        charts[key].data.labels = labels;
+        charts[key].data.datasets[0].data = values;
+        charts[key].update();
+      }
     }
 
     function refreshAll() {
@@ -258,14 +290,11 @@
       localStorage.setItem("theme", isDark ? "dark" : "light");
     }
 
-    // Saat halaman dibuka, cek preferensi terakhir
     window.addEventListener("DOMContentLoaded", () => {
       const savedTheme = localStorage.getItem("theme");
       if (savedTheme === "dark") {
         document.body.classList.add("dark");
         document.querySelector(".toggle-dark").textContent = "☀️";
-      } else {
-        document.querySelector(".toggle-dark").textContent = "🌙";
       }
       refreshAll();
       setInterval(refreshAll, 10000);
