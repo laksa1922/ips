@@ -5,28 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Pompa & Tandon</title>
   <style>
+    :root {
+      --bg: #f5f7fa;
+      --text: #333;
+      --card: #fff;
+      --card-shadow: rgba(0,0,0,0.08);
+      --table-header: #f0f2f5;
+      --table-hover: #f9fafc;
+    }
+    body.dark {
+      --bg: #111;
+      --text: #eee;
+      --card: #1a1a1a;
+      --card-shadow: rgba(0,0,0,0.6);
+      --table-header: #222;
+      --table-hover: #2a2a2a;
+    }
+
     body {
       margin: 0;
       padding: 20px;
       font-family: "Segoe UI", sans-serif;
-      background: #f5f7fa;
-      color: #333;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
       text-align: center;
       font-size: 2em;
-      color: #2c3e50;
       margin-bottom: 25px;
     }
 
+    .toggle-btn {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #3498db;
+      color: #fff;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .toggle-btn:hover {
+      background: #2980b9;
+    }
+
     .card {
-      background: #fff;
+      background: var(--card);
       border-radius: 14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 10px var(--card-shadow);
       margin-bottom: 20px;
       padding: 18px;
-      transition: transform 0.2s;
+      transition: background 0.3s;
     }
     .card:hover {
       transform: translateY(-3px);
@@ -46,6 +79,9 @@
       color: #777;
       margin-bottom: 12px;
     }
+    body.dark .last-update {
+      color: #bbb;
+    }
 
     table {
       width: 100%;
@@ -58,15 +94,17 @@
       border-bottom: 1px solid #eaeaea;
       text-align: center;
     }
+    body.dark th, body.dark td {
+      border-color: #444;
+    }
 
     th {
-      background: #f0f2f5;
-      color: #555;
+      background: var(--table-header);
       font-weight: 600;
     }
 
     tr:hover td {
-      background: #f9fafc;
+      background: var(--table-hover);
     }
 
     /* Status Badge */
@@ -85,7 +123,7 @@
     .penuh { background: #9b59b6; }
     .trip  { background: #c0392b; }
 
-    /* Loader kecil */
+    /* Loader */
     .loader {
       width: 10px;
       height: 10px;
@@ -98,6 +136,16 @@
       50% { transform: scale(1.5); opacity: 1; }
     }
 
+    /* Highlight ketika data berubah */
+    .glow {
+      animation: glowAnim 1.2s ease-in-out;
+    }
+    @keyframes glowAnim {
+      0%   { background-color: rgba(255, 215, 0, 0.2); }
+      50%  { background-color: rgba(255, 215, 0, 0.6); }
+      100% { background-color: transparent; }
+    }
+
     @media (max-width: 768px) {
       table, th, td { font-size: 0.8em; }
     }
@@ -105,6 +153,7 @@
 </head>
 <body>
   <h1>📊 Dashboard Pompa & Tandon</h1>
+  <button class="toggle-btn" onclick="toggleMode()">🌗 Mode Gelap / Terang</button>
 
   <div class="card" id="section-joglo">
     <div class="card-header">📍 Joglo <div class="loader" id="loader-joglo"></div></div>
@@ -130,6 +179,8 @@
       kantin: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRp3hZufwknJEpOfvD_6YlB_lQEWwcJ-hMgKVfNoV1-jJAKeQB979Acs69cXCKCZVkf01OhwFn8fHlD/pub?gid=0&single=true&output=csv',
       lt6: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS2q5WkdqPKnd4D37-45O3LSc2KC7nMfRVDWz2crolUEyUOgnhuHxjGgU42BG0q_ddnl8vw_DJ_mcRV/pub?gid=0&single=true&output=csv'
     };
+
+    const previousData = { joglo: [], kantin: [], lt6: [] };
 
     function applyStatus(val, key, i) {
       const lc = val.toLowerCase();
@@ -161,8 +212,13 @@
       const cells = dataArr[0].split(",").slice(0, headers.length);
 
       const rowHTML = cells.map((val, i) => {
+        const last = previousData[key][i];
+        const changed = last !== undefined && last !== val;
+        previousData[key][i] = val;
+
         const status = applyStatus(val, key, i);
-        return `<td>${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
+        const cls = changed ? "glow" : "";
+        return `<td class="${cls}">${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
       }).join("");
 
       return `
@@ -201,6 +257,10 @@
       fetchAndDisplayCSV(sources.joglo, "joglo");
       fetchAndDisplayCSV(sources.kantin, "kantin");
       fetchAndDisplayCSV(sources.lt6, "lt6");
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark");
     }
 
     refreshAll();
