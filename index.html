@@ -139,9 +139,17 @@
     .penuh { background: #8e44ad; }
     .trip  { background: #d35400; }
 
-    canvas {
-      margin-top: 15px;
+    /* Efek highlight perubahan */
+    .changed {
+      animation: flashChange 1.2s ease-in-out;
     }
+    @keyframes flashChange {
+      0%   { background: rgba(52,152,219,0.3); }
+      50%  { background: rgba(52,152,219,0.6); }
+      100% { background: transparent; }
+    }
+
+    canvas { margin-top: 15px; }
   </style>
 </head>
 <body>
@@ -212,7 +220,9 @@
 
       const rowHTML = cells.map((val, i) => {
         const status = applyStatus(val, key, i);
-        return `<td>${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
+        const changed = lastData[key][i] !== undefined && lastData[key][i] !== val;
+        lastData[key][i] = val;
+        return `<td class="${changed ? "changed" : ""}">${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
       }).join("");
 
       return `
