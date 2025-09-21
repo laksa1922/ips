@@ -230,10 +230,7 @@
       const updateId = "update-" + key;
       document.getElementById(loaderId).style.display = "inline-block";
 
-      // Tambah timestamp untuk bypass cache
-      const freshUrl = url + "&t=" + new Date().getTime();
-
-      fetch(freshUrl, { cache: "no-store" })
+      fetch(url)
         .then(res => res.text())
         .then(data => {
           const rows = data.trim().split("\n").slice(1, 2);
