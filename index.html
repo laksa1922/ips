@@ -144,6 +144,16 @@
     @media (max-width: 768px) {
       table, th, td { font-size: 0.8em; }
     }
+
+    /* Tambahan agar tabel rapi di mobile */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .table-container table {
+      min-width: 500px;
+    }
   </style>
 </head>
 <body>
@@ -228,10 +238,12 @@
       }).join("");
 
       return `
-        <table>
-          <tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
-          <tr>${rowHTML}</tr>
-        </table>`;
+        <div class="table-container">
+          <table>
+            <tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
+            <tr>${rowHTML}</tr>
+          </table>
+        </div>`;
     }
 
     function updateTimeText(id) {
