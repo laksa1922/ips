@@ -109,13 +109,16 @@
       font-size: 0.85em;
       color: #fff;
       display: inline-block;
-      min-width: 50px;
+      min-width: 60px;
     }
-    .on    { background: #27ae60; }
-    .off   { background: #e74c3c; }
-    .normal{ background: #2980b9; }
-    .penuh { background: #9b59b6; }
-    .trip  { background: #c0392b; }
+    /* Warna sesuai permintaan */
+    .on        { background: #27ae60; }  /* Pompa nyala hijau */
+    .off       { background: #e74c3c; }  /* Pompa mati merah */
+    .rendah    { background: #e74c3c; }  /* Tandon rendah merah */
+    .normal    { background: #2980b9; }  /* Tandon normal biru */
+    .penuh     { background: #f1c40f; color:#000; }  /* Tandon penuh kuning */
+    .mcb-normal{ background: #2980b9; }  /* MCB normal biru */
+    .trip      { background: #f1c40f; color:#000; }  /* MCB trip kuning */
 
     .loader {
       width: 10px;
@@ -179,16 +182,28 @@
     function applyStatus(val, key, i) {
       const lc = val.toLowerCase();
       if (key === "joglo") {
-        if (i === 1) return lc.includes("nyala") ? "on" : "off";
-        if (i === 2) return lc.includes("penuh") ? "penuh" : "normal";
+        if (i === 1) return lc.includes("nyala") ? "on" : "off";           // Pompa
+        if (i === 2) {
+          if (lc.includes("rendah")) return "rendah";
+          if (lc.includes("penuh")) return "penuh";
+          return "normal";
+        }
       }
       if (key === "kantin") {
-        if (i === 1) return lc.includes("nyala") ? "on" : "off";
-        if (i === 2) return lc.includes("penuh") ? "penuh" : "normal";
-        if (i === 4) return lc.includes("trip") ? "trip" : "";
+        if (i === 1) return lc.includes("nyala") ? "on" : "off";          // Pompa
+        if (i === 2) {
+          if (lc.includes("rendah")) return "rendah";
+          if (lc.includes("penuh")) return "penuh";
+          return "normal";
+        }
+        if (i === 4) return lc.includes("trip") ? "trip" : "mcb-normal";  // MCB
       }
       if (key === "lt6") {
-        if (i === 1) return lc.includes("penuh") ? "penuh" : "normal";
+        if (i === 1) {
+          if (lc.includes("rendah")) return "rendah";
+          if (lc.includes("penuh")) return "penuh";
+          return "normal";
+        }
       }
       return "";
     }
