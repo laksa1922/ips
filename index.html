@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard Pompa & Tandon</title>
   <style>
     :root {
@@ -38,19 +38,19 @@
     /* ===== HEADER ===== */
     .header {
       text-align: center;
-      padding: 25px 15px 15px;
+      padding: 20px 15px 10px;
       border-bottom: 2px solid var(--accent-light);
     }
     .header h1 {
       margin: 0;
-      font-size: 2em;
+      font-size: 1.9em;
       font-weight: 700;
       color: var(--accent);
       letter-spacing: 1px;
     }
     .header p {
-      margin: 5px 0 0;
-      font-size: 1em;
+      margin: 4px 0 0;
+      font-size: 0.95em;
       color: var(--accent-light);
       font-style: italic;
     }
@@ -58,17 +58,15 @@
     /* ===== FOOTER ===== */
     .footer {
       text-align: center;
-      padding: 15px;
-      margin-top: 30px;
+      padding: 12px;
+      margin-top: 24px;
       font-size: 0.9em;
       color: var(--accent);
       border-top: 1px solid var(--table-border);
     }
-    body.dark .footer {
-      color: var(--accent-light);
-    }
+    body.dark .footer { color: var(--accent-light); }
 
-    /* Tombol dark mode pojok kanan */
+    /* Tombol dark mode */
     .toggle-dark {
       position: fixed;
       top: 15px;
@@ -105,10 +103,9 @@
       justify-content: space-between;
       align-items: center;
       font-weight: bold;
-      font-size: 1.1em;
+      font-size: 1.05em;
       margin-bottom: 8px;
     }
-
     .last-update {
       font-size: 0.9em;
       color: #777;
@@ -116,105 +113,201 @@
     }
     body.dark .last-update { color: #aaa; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9em;
-    }
-    th, td {
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--table-border);
-      text-align: center;
-    }
-    th {
-      background: var(--table-head);
-      font-weight: 600;
-    }
-    tr:hover td { background: rgba(0,0,0,0.03); }
-    body.dark tr:hover td { background: rgba(255,255,255,0.05); }
-
-    .badge {
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 0.85em;
-      color: #fff;
-      display: inline-block;
-      min-width: 60px;
-    }
-    /* Warna sesuai permintaan */
-    .on        { background: #27ae60; }
-    .off       { background: #e74c3c; }
-    .rendah    { background: #e74c3c; }
-    .normal    { background: #2980b9; }
-    .penuh     { background: #f1c40f; color:#000; }
-    .mcb-normal{ background: #2980b9; }
-    .trip      { background: #f1c40f; color:#000; }
-
     .loader {
       width: 10px;
       height: 10px;
       border-radius: 50%;
       background: #3498db;
       animation: pulse 1s infinite;
+      display: inline-block;
     }
     @keyframes pulse {
       0%,100% { transform: scale(1); opacity: .6; }
       50% { transform: scale(1.5); opacity: 1; }
     }
 
-    .changed {
-      animation: flashChange 1.5s ease-in-out;
-    }
-    @keyframes flashChange {
-      0%   { background: rgba(52,152,219,0.2); }
-      50%  { background: rgba(52,152,219,0.6); }
-      100% { background: transparent; }
-    }
-
-    @media (max-width: 768px) {
-      table, th, td { font-size: 0.8em; }
+    /* LAYOUT VISUAL */
+    .visual-row {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      padding-top: 8px;
     }
 
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+    .visual-block {
+      width: 320px;
+      max-width: 48%;
+      min-width: 260px;
+      background: rgba(0,0,0,0.02);
+      border-radius: 12px;
+      padding: 12px;
+      box-sizing: border-box;
+      text-align: center;
     }
-    .table-container table {
-      min-width: 500px;
+    body.dark .visual-block { background: rgba(255,255,255,0.02); }
+
+    .label { font-weight: 700; margin-bottom: 8px; color:var(--accent); }
+
+    /* --- TANK --- */
+    .tank {
+      position: relative;
+      width: 140px;
+      height: 200px;
+      margin: 0 auto 8px;
+      border-radius: 6px;
+      background: linear-gradient(#dcdcdc, #e9f0f8);
+      border: 6px solid #bdbdbd;
+      box-sizing: border-box;
+      overflow: hidden;
     }
+    .tank .inside {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      top: 8px;
+      border-radius: 3px;
+      overflow: hidden;
+      background: linear-gradient(#f7fbff,#e6f2ff);
+    }
+    .tank .water {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 20%; /* diubah dinamis */
+      background: linear-gradient(#0b66b3,#0b96ff);
+      transition: height 1s ease;
+      box-shadow: inset 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .tank .level-text {
+      position: absolute;
+      top: 8px;
+      left: 0;
+      right: 0;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #083b66;
+    }
+
+    /* --- PUMP --- */
+    .pump {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+    .pump .body {
+      width: 140px;
+      height: 70px;
+      background: linear-gradient(#d3d3d3,#bfc9d6);
+      border-radius: 8px;
+      position: relative;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    .pump .impeller {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(#fff,#bbb);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .pump .impeller::before {
+      content: "";
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+      background: conic-gradient(#2c3e50 0 30%, transparent 30% 60%, #2c3e50 60% 100%);
+      opacity: 0.95;
+    }
+    /* rotasi */
+    @keyframes spin {
+      from { transform: translate(-50%,-50%) rotate(0deg); }
+      to   { transform: translate(-50%,-50%) rotate(360deg); }
+    }
+    .pump.on .impeller { animation: spin 0.8s linear infinite; }
+
+    .pump .status {
+      font-weight:700;
+      padding:6px 10px;
+      border-radius:8px;
+      display:inline-block;
+      color:#fff;
+    }
+    .badge-on { background: #27ae60; }
+    .badge-off { background: #e74c3c; }
+
+    /* --- MCB --- */
+    .mcb {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+    .mcb .indicator {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #7f8c8d;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+      transition: background 0.4s, box-shadow 0.4s;
+    }
+    .mcb.normal .indicator { background: #27ae60; box-shadow: 0 6px 18px rgba(39,174,96,0.25); }
+    .mcb.trip .indicator { background: #e74c3c; box-shadow: 0 6px 18px rgba(231,76,60,0.25); }
+    .mcb .text { font-weight:700; }
+
+    /* responsive minor */
+    @media (max-width: 880px) {
+      .visual-block { max-width: 100%; min-width: 100%; }
+      .visual-row { gap: 12px; }
+    }
+
   </style>
 </head>
 <body>
-  <!-- Tombol Dark Mode -->
   <button class="toggle-dark" onclick="toggleDarkMode()">🌙</button>
 
-  <!-- HEADER -->
   <div class="header">
     <h1>⚙️ Monitoring Pompa & Tandon</h1>
     <p>Sistem Pemantauan Cerdas Real-time</p>
   </div>
 
+  <!-- Joglo -->
   <div class="card" id="section-joglo">
     <div class="card-header">📍 Joglo <div class="loader" id="loader-joglo"></div></div>
     <div class="last-update" id="update-joglo">Terakhir update: -</div>
-    <div id="table-joglo">Memuat data...</div>
+    <div id="visual-joglo" class="visual-row">
+      <!-- Konten visual akan dimasukkan lewat JS -->
+      <div style="width:100%;text-align:center;color:#888;">Memuat visual...</div>
+    </div>
   </div>
 
+  <!-- Kantin -->
   <div class="card" id="section-kantin">
     <div class="card-header">📍 Kantin <div class="loader" id="loader-kantin"></div></div>
     <div class="last-update" id="update-kantin">Terakhir update: -</div>
-    <div id="table-kantin">Memuat data...</div>
+    <div id="visual-kantin" class="visual-row">
+      <div style="width:100%;text-align:center;color:#888;">Memuat visual...</div>
+    </div>
   </div>
 
+  <!-- Lantai 6 -->
   <div class="card" id="section-lt6">
     <div class="card-header">📍 Lantai 6 <div class="loader" id="loader-lt6"></div></div>
     <div class="last-update" id="update-lt6">Terakhir update: -</div>
-    <div id="table-lt6">Memuat data...</div>
+    <div id="visual-lt6" class="visual-row">
+      <div style="width:100%;text-align:center;color:#888;">Memuat visual...</div>
+    </div>
   </div>
 
-  <!-- FOOTER -->
   <div class="footer">
     ⚡ Dibuat oleh <b>Instalasi Pemelihara Sarana (IPS)</b><br>
     Rumah Sakit Adi Husada Kapasari
@@ -229,61 +322,113 @@
 
     const lastData = { joglo: [], kantin: [], lt6: [] };
 
-    function applyStatus(val, key, i) {
-      const lc = val.toLowerCase();
-      if (key === "joglo") {
-        if (i === 1) return lc.includes("nyala") ? "on" : "off";
-        if (i === 2) {
-          if (lc.includes("rendah")) return "rendah";
-          if (lc.includes("penuh")) return "penuh";
-          return "normal";
-        }
+    // Membantu menginterpretasi teks menjadi kelas status
+    function interpretCell(val, key, idx) {
+      const text = (val||"").toString().trim().toLowerCase();
+      if (!text) return { raw: val, cls: "", label: val };
+
+      // Pompa biasanya pada index 1 (sesuai spreadsheet lama)
+      if (idx === 1) {
+        if (text.includes("nyala") || text.includes("on")) return { raw: val, cls: "on", label: "Nyala" };
+        return { raw: val, cls: "off", label: (text.includes("mati")||text.includes("off")) ? "Mati" : val };
       }
-      if (key === "kantin") {
-        if (i === 1) return lc.includes("nyala") ? "on" : "off";
-        if (i === 2) {
-          if (lc.includes("rendah")) return "rendah";
-          if (lc.includes("penuh")) return "penuh";
-          return "normal";
-        }
-        if (i === 4) return lc.includes("trip") ? "trip" : "mcb-normal";
+
+      // Level tandon biasanya index 2 (rendah / normal / penuh)
+      if (idx === 2) {
+        if (text.includes("rendah")) return { raw: val, cls: "rendah", label: "Rendah" };
+        if (text.includes("penuh"))  return { raw: val, cls: "penuh", label: "Penuh" };
+        return { raw: val, cls: "normal", label: "Normal" };
       }
-      if (key === "lt6") {
-        if (i === 1) {
-          if (lc.includes("rendah")) return "rendah";
-          if (lc.includes("penuh")) return "penuh";
-          return "normal";
-        }
+
+      // MCB di kantin kemungkinan index 4
+      if (idx === 4) {
+        if (text.includes("trip")) return { raw: val, cls: "trip", label: "Trip" };
+        return { raw: val, cls: "normal", label: "Normal" };
       }
-      return "";
+
+      // fallback
+      return { raw: val, cls: "", label: val };
     }
 
-    function getHeaders(key) {
-      if (key === "joglo") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","RSSI","IP Address"];
-      if (key === "kantin") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","MCB","RSSI","IP Address"];
-      if (key === "lt6") return ["Waktu","Level Tandon"];
-      return [];
+    // Konversi kelas level jadi persen tinggi air
+    function levelToPercent(cls) {
+      if (cls === "penuh") return 92;
+      if (cls === "normal") return 60;
+      if (cls === "rendah") return 20;
+      return 50;
     }
 
-    function createTableHTML(dataArr, key) {
-      if (!dataArr.length) return "Data tidak tersedia.";
-      const headers = getHeaders(key);
-      const cells = dataArr[0].split(",").slice(0, headers.length);
+    // Buat HTML visual untuk tiap lokasi berdasarkan row CSV
+    function createVisualFromRow(row, key) {
+      if (!row) return `<div style="width:100%;text-align:center;color:#888;">Data tidak tersedia</div>`;
+      // pecah CSV (simple split, sesuai strukturmu sebelumnya)
+      const cells = row.split(",").map(s => s.trim());
+      // update lastData detection
+      const changedFlags = [];
+      for (let i=0;i<cells.length;i++){
+        changedFlags[i] = lastData[key][i] !== undefined && lastData[key][i] !== cells[i];
+        lastData[key][i] = cells[i];
+      }
 
-      const rowHTML = cells.map((val, i) => {
-        const status = applyStatus(val, key, i);
-        const changed = lastData[key][i] !== undefined && lastData[key][i] !== val;
-        lastData[key][i] = val;
-        return `<td class="${changed ? "changed" : ""}">${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
-      }).join("");
+      // Interpretasi sel penting
+      const pompaCell = interpretCell(cells[1]||"", key, 1);
+      const levelCell = interpretCell(cells[2]||"", key, 2);
+      const mcbCell = interpretCell(cells[4]||"", key, 4); // mungkin undefined di beberapa sheet
+      const waktu = cells[0]||"-";
 
-      return `
-        <div class="table-container">
-          <table>
-            <tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
-            <tr>${rowHTML}</tr>
-          </table>
-        </div>`;
+      // Build visual blocks: Pump, Tank, MCB (jika ada)
+      const pumpHTML = `
+        <div class="visual-block">
+          <div class="label">POMPA</div>
+          <div class="pump ${pompaCell.cls === "on" ? "on" : ""}">
+            <div class="body">
+              <div class="impeller" title="Impeller"></div>
+            </div>
+            <div style="margin-top:8px;">
+              <span class="pump-status ${pompaCell.cls === "on" ? 'badge-on' : 'badge-off'}">
+                ${pompaCell.label}
+              </span>
+            </div>
+            <div style="margin-top:6px;font-size:0.85rem;color:#666">Waktu: ${waktu}</div>
+          </div>
+        </div>
+      `;
+
+      const tankPercent = levelToPercent(levelCell.cls);
+      const tankHTML = `
+        <div class="visual-block">
+          <div class="label">TANDON</div>
+          <div class="tank" aria-label="Tank level">
+            <div class="inside">
+              <div class="water" style="height:${tankPercent}%;"></div>
+            </div>
+            <div class="level-text">${levelCell.label}</div>
+          </div>
+          <div style="margin-top:8px;">
+            <span style="font-weight:700;color:#083b66">${cells[3] ? `Suhu: ${cells[3]}` : ''}</span>
+          </div>
+        </div>
+      `;
+
+      const mcbHTML = `
+        <div class="visual-block">
+          <div class="label">MCB</div>
+          <div class="mcb ${mcbCell.cls === "trip" ? 'trip' : (mcbCell.cls === 'normal' ? 'normal' : '')}">
+            <div class="indicator" title="Status MCB"></div>
+            <div class="text" style="margin-top:6px; font-weight:700;">
+              ${mcbCell.label || '-'}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Pilih susunan: pompa + tank selalu. MCB hanya jika ada value di index4
+      let final = '';
+      final += pumpHTML;
+      final += tankHTML;
+      if ((cells[4]||"").trim() !== "") final += mcbHTML;
+
+      return final;
     }
 
     function updateTimeText(id) {
@@ -292,7 +437,7 @@
     }
 
     function fetchAndDisplayCSV(url, key) {
-      const tableId = "table-" + key;
+      const containerId = (key === "joglo") ? "visual-joglo" : (key === "kantin") ? "visual-kantin" : "visual-lt6";
       const loaderId = "loader-" + key;
       const updateId = "update-" + key;
       document.getElementById(loaderId).style.display = "inline-block";
@@ -300,13 +445,21 @@
       fetch(url)
         .then(res => res.text())
         .then(data => {
-          const rows = data.trim().split("\n").slice(1, 2);
-          document.getElementById(tableId).innerHTML = createTableHTML(rows, key);
+          const rows = data.trim().split("\n");
+          // Ambil header lalu baris pertama data (mirip kode aslimu)
+          let row = null;
+          if (rows.length > 1) {
+            // ambil baris paling akhir atau baris pertama data? di kode lama slice(1,2) -> index 1
+            // supaya konsisten ambil baris index 1 (baris pertama data)
+            row = rows[1];
+          }
+          document.getElementById(containerId).innerHTML = createVisualFromRow(row, key);
           updateTimeText(updateId);
           document.getElementById(loaderId).style.display = "none";
         })
-        .catch(() => {
-          document.getElementById(tableId).innerHTML = "<i style='color:red'>Gagal memuat data.</i>";
+        .catch((err) => {
+          console.error("Fetch error", err);
+          document.getElementById(containerId).innerHTML = "<i style='color:red'>Gagal memuat data.</i>";
           document.getElementById(loaderId).style.display = "none";
         });
     }
@@ -334,7 +487,7 @@
         document.querySelector(".toggle-dark").textContent = "🌙";
       }
       refreshAll();
-      setInterval(refreshAll, 10000);
+      setInterval(refreshAll, 10000); // refresh tiap 10s seperti kode awal
     });
   </script>
 </body>
