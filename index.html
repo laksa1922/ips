@@ -16,7 +16,6 @@
       --accent: #2c3e50;
       --accent-light: #3498db;
     }
-
     body.dark {
       --bg: #111;
       --text: #eee;
@@ -41,14 +40,14 @@
       padding: 25px 15px 15px;
       border-bottom: 2px solid var(--accent-light);
     }
-
     .header h1 {
       margin: 0;
       font-size: 2em;
+      font-weight: 700;
       color: var(--accent);
     }
-
     .header p {
+      margin-top: 5px;
       color: var(--accent-light);
       font-style: italic;
     }
@@ -80,13 +79,14 @@
       display: flex;
       justify-content: space-between;
       font-weight: bold;
-      margin-bottom: 6px;
+      font-size: 1.1em;
+      margin-bottom: 8px;
     }
 
     .last-update {
       font-size: 0.9em;
       color: #777;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     table {
@@ -94,32 +94,31 @@
       border-collapse: collapse;
       font-size: 0.9em;
     }
-
     th, td {
-      padding: 8px;
+      padding: 8px 10px;
       border-bottom: 1px solid var(--table-border);
       text-align: center;
     }
-
     th {
       background: var(--table-head);
+      font-weight: 600;
     }
 
     .badge {
-      padding: 4px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
       font-weight: bold;
       font-size: 0.85em;
       color: #fff;
       display: inline-block;
+      min-width: 60px;
     }
 
     .on { background: #27ae60; }
     .off, .rendah { background: #e74c3c; }
     .normal { background: #2980b9; }
-    .penuh { background: #f1c40f; color: #000; }
+    .penuh, .trip { background: #f1c40f; color:#000; }
     .mcb-normal { background: #2980b9; }
-    .trip { background: #f1c40f; color: #000; }
 
     .loader {
       width: 10px;
@@ -128,22 +127,21 @@
       background: #3498db;
       animation: pulse 1s infinite;
     }
-
     @keyframes pulse {
       0%,100% { transform: scale(1); opacity: .6; }
       50% { transform: scale(1.5); opacity: 1; }
     }
 
     .changed {
-      animation: flash 1.5s;
+      animation: flashChange 1.5s ease-in-out;
     }
-
-    @keyframes flash {
-      0% { background: rgba(52,152,219,.3); }
+    @keyframes flashChange {
+      0% { background: rgba(52,152,219,0.2); }
+      50% { background: rgba(52,152,219,0.6); }
       100% { background: transparent; }
     }
 
-    /* === PENANDA ESP BERHENTI === */
+    /* === PENANDA ESP BERHENTI (WAKTU MERAH) === */
     .time-stale {
       color: #e74c3c;
       font-weight: bold;
@@ -152,6 +150,7 @@
     }
 
     .table-container {
+      width: 100%;
       overflow-x: auto;
     }
 
@@ -207,13 +206,6 @@ const sources = {
 
 const lastData = { joglo: [], kantin: [], lt6: [] };
 
-function getHeaders(k) {
-  if (k === "joglo") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","RSSI","IP"];
-  if (k === "kantin") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","MCB","RSSI","IP"];
-  if (k === "lt6") return ["Waktu","Level Tandon"];
-  return [];
-}
-
 function applyStatus(val, key, i) {
   const lc = val.toLowerCase();
   if (lc.includes("nyala")) return "on";
@@ -224,13 +216,20 @@ function applyStatus(val, key, i) {
   return "";
 }
 
+function getHeaders(key) {
+  if (key === "joglo") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","RSSI","IP"];
+  if (key === "kantin") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","MCB","RSSI","IP"];
+  if (key === "lt6") return ["Waktu","Level Tandon"];
+  return [];
+}
+
 function createTableHTML(dataArr, key) {
   if (!dataArr.length) return "Data tidak tersedia.";
   const headers = getHeaders(key);
   const cells = dataArr[0].split(",").slice(0, headers.length);
   const now = new Date();
 
-  const row = cells.map((val, i) => {
+  const rowHTML = cells.map((val, i) => {
     let cls = "";
     if (i === 0) {
       const t = new Date(val.replace(/-/g,"/"));
@@ -247,7 +246,7 @@ function createTableHTML(dataArr, key) {
   <div class="table-container">
     <table>
       <tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
-      <tr>${row}</tr>
+      <tr>${rowHTML}</tr>
     </table>
   </div>`;
 }
