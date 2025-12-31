@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Pompa & Tandon</title>
+
   <style>
     :root {
       --bg: #f5f7fa;
@@ -15,6 +16,7 @@
       --accent: #2c3e50;
       --accent-light: #3498db;
     }
+
     body.dark {
       --bg: #111;
       --text: #eee;
@@ -32,43 +34,25 @@
       font-family: "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
-      transition: background 0.3s, color 0.3s;
     }
 
-    /* ===== HEADER ===== */
     .header {
       text-align: center;
       padding: 25px 15px 15px;
       border-bottom: 2px solid var(--accent-light);
     }
+
     .header h1 {
       margin: 0;
       font-size: 2em;
-      font-weight: 700;
       color: var(--accent);
-      letter-spacing: 1px;
     }
+
     .header p {
-      margin: 5px 0 0;
-      font-size: 1em;
       color: var(--accent-light);
       font-style: italic;
     }
 
-    /* ===== FOOTER ===== */
-    .footer {
-      text-align: center;
-      padding: 15px;
-      margin-top: 30px;
-      font-size: 0.9em;
-      color: var(--accent);
-      border-top: 1px solid var(--table-border);
-    }
-    body.dark .footer {
-      color: var(--accent-light);
-    }
-
-    /* Tombol dark mode pojok kanan */
     .toggle-dark {
       position: fixed;
       top: 15px;
@@ -81,14 +65,8 @@
       color: #fff;
       font-size: 18px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: background 0.3s, transform 0.2s;
       z-index: 1000;
     }
-    .toggle-dark:hover { background: #2980b9; transform: rotate(15deg); }
 
     .card {
       background: var(--card);
@@ -96,60 +74,52 @@
       box-shadow: 0 4px 10px var(--card-shadow);
       margin-bottom: 20px;
       padding: 18px;
-      transition: transform 0.2s, background 0.3s;
     }
-    .card:hover { transform: translateY(-3px); }
 
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       font-weight: bold;
-      font-size: 1.1em;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .last-update {
       font-size: 0.9em;
       color: #777;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-    body.dark .last-update { color: #aaa; }
 
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9em;
     }
+
     th, td {
-      padding: 8px 10px;
+      padding: 8px;
       border-bottom: 1px solid var(--table-border);
       text-align: center;
     }
+
     th {
       background: var(--table-head);
-      font-weight: 600;
     }
-    tr:hover td { background: rgba(0,0,0,0.03); }
-    body.dark tr:hover td { background: rgba(255,255,255,0.05); }
 
     .badge {
-      padding: 3px 8px;
+      padding: 4px 8px;
       border-radius: 6px;
       font-weight: bold;
       font-size: 0.85em;
       color: #fff;
       display: inline-block;
-      min-width: 60px;
     }
-    /* Warna sesuai permintaan */
-    .on        { background: #27ae60; }
-    .off       { background: #e74c3c; }
-    .rendah    { background: #e74c3c; }
-    .normal    { background: #2980b9; }
-    .penuh     { background: #f1c40f; color:#000; }
-    .mcb-normal{ background: #2980b9; }
-    .trip      { background: #f1c40f; color:#000; }
+
+    .on { background: #27ae60; }
+    .off, .rendah { background: #e74c3c; }
+    .normal { background: #2980b9; }
+    .penuh { background: #f1c40f; color: #000; }
+    .mcb-normal { background: #2980b9; }
+    .trip { background: #f1c40f; color: #000; }
 
     .loader {
       width: 10px;
@@ -158,184 +128,152 @@
       background: #3498db;
       animation: pulse 1s infinite;
     }
+
     @keyframes pulse {
       0%,100% { transform: scale(1); opacity: .6; }
       50% { transform: scale(1.5); opacity: 1; }
     }
 
     .changed {
-      animation: flashChange 1.5s ease-in-out;
+      animation: flash 1.5s;
     }
-    @keyframes flashChange {
-      0%   { background: rgba(52,152,219,0.2); }
-      50%  { background: rgba(52,152,219,0.6); }
+
+    @keyframes flash {
+      0% { background: rgba(52,152,219,.3); }
       100% { background: transparent; }
     }
 
-    @media (max-width: 768px) {
-      table, th, td { font-size: 0.8em; }
+    /* === PENANDA ESP BERHENTI === */
+    .time-stale {
+      color: #e74c3c;
+      font-weight: bold;
+      background: rgba(231, 76, 60, 0.15);
+      border-radius: 6px;
     }
 
     .table-container {
-      width: 100%;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
     }
-    .table-container table {
-      min-width: 500px;
+
+    .footer {
+      text-align: center;
+      padding: 15px;
+      margin-top: 30px;
+      font-size: 0.9em;
+      border-top: 1px solid var(--table-border);
     }
   </style>
 </head>
+
 <body>
-  <!-- Tombol Dark Mode -->
-  <button class="toggle-dark" onclick="toggleDarkMode()">🌙</button>
+<button class="toggle-dark" onclick="toggleDarkMode()">🌙</button>
 
-  <!-- HEADER -->
-  <div class="header">
-    <h1>⚙️ Monitoring Pompa & Tandon</h1>
-    <p>Sistem Pemantauan Cerdas Real-time</p>
-  </div>
+<div class="header">
+  <h1>⚙️ Monitoring Pompa & Tandon</h1>
+  <p>Sistem Pemantauan Cerdas Real-time</p>
+</div>
 
-  <div class="card" id="section-joglo">
-    <div class="card-header">📍 Joglo <div class="loader" id="loader-joglo"></div></div>
-    <div class="last-update" id="update-joglo">Terakhir update: -</div>
-    <div id="table-joglo">Memuat data...</div>
-  </div>
+<div class="card">
+  <div class="card-header">📍 Joglo <div class="loader" id="loader-joglo"></div></div>
+  <div class="last-update" id="update-joglo">Terakhir update: -</div>
+  <div id="table-joglo">Memuat data...</div>
+</div>
 
-  <div class="card" id="section-kantin">
-    <div class="card-header">📍 Kantin <div class="loader" id="loader-kantin"></div></div>
-    <div class="last-update" id="update-kantin">Terakhir update: -</div>
-    <div id="table-kantin">Memuat data...</div>
-  </div>
+<div class="card">
+  <div class="card-header">📍 Kantin <div class="loader" id="loader-kantin"></div></div>
+  <div class="last-update" id="update-kantin">Terakhir update: -</div>
+  <div id="table-kantin">Memuat data...</div>
+</div>
 
-  <div class="card" id="section-lt6">
-    <div class="card-header">📍 Lantai 6 <div class="loader" id="loader-lt6"></div></div>
-    <div class="last-update" id="update-lt6">Terakhir update: -</div>
-    <div id="table-lt6">Memuat data...</div>
-  </div>
+<div class="card">
+  <div class="card-header">📍 Lantai 6 <div class="loader" id="loader-lt6"></div></div>
+  <div class="last-update" id="update-lt6">Terakhir update: -</div>
+  <div id="table-lt6">Memuat data...</div>
+</div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    ⚡ Dibuat oleh <b>Instalasi Pemelihara Sarana (IPS)</b><br>
-    Rumah Sakit Adi Husada Kapasari
-  </div>
+<div class="footer">
+  ⚡ Instalasi Pemelihara Sarana (IPS)<br>
+  RS Adi Husada Kapasari
+</div>
 
-  <script>
-    const sources = {
-      joglo: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTf9RrlaFN7h2UMkV_KRWJ0hU53Uwp2kCyjwduvxkvhv7rqJc7j71mXBai3hF3aW6R7EGYNzi5TWQSs/pub?gid=0&single=true&output=csv',
-      kantin: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRp3hZufwknJEpOfvD_6YlB_lQEWwcJ-hMgKVfNoV1-jJAKeQB979Acs69cXCKCZVkf01OhwFn8fHlD/pub?gid=0&single=true&output=csv',
-      lt6: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS2q5WkdqPKnd4D37-45O3LSc2KC7nMfRVDWz2crolUEyUOgnhuHxjGgU42BG0q_ddnl8vw_DJ_mcRV/pub?gid=0&single=true&output=csv'
-    };
+<script>
+const STALE_LIMIT_MINUTES = 10;
 
-    const lastData = { joglo: [], kantin: [], lt6: [] };
+const sources = {
+  joglo: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTf9RrlaFN7h2UMkV_KRWJ0hU53Uwp2kCyjwduvxkvhv7rqJc7j71mXBai3hF3aW6R7EGYNzi5TWQSs/pub?gid=0&single=true&output=csv',
+  kantin: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRp3hZufwknJEpOfvD_6YlB_lQEWwcJ-hMgKVfNoV1-jJAKeQB979Acs69cXCKCZVkf01OhwFn8fHlD/pub?gid=0&single=true&output=csv',
+  lt6: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS2q5WkdqPKnd4D37-45O3LSc2KC7nMfRVDWz2crolUEyUOgnhuHxjGgU42BG0q_ddnl8vw_DJ_mcRV/pub?gid=0&single=true&output=csv'
+};
 
-    function applyStatus(val, key, i) {
-      const lc = val.toLowerCase();
-      if (key === "joglo") {
-        if (i === 1) return lc.includes("nyala") ? "on" : "off";
-        if (i === 2) {
-          if (lc.includes("rendah")) return "rendah";
-          if (lc.includes("penuh")) return "penuh";
-          return "normal";
-        }
+const lastData = { joglo: [], kantin: [], lt6: [] };
+
+function getHeaders(k) {
+  if (k === "joglo") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","RSSI","IP"];
+  if (k === "kantin") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","MCB","RSSI","IP"];
+  if (k === "lt6") return ["Waktu","Level Tandon"];
+  return [];
+}
+
+function applyStatus(val, key, i) {
+  const lc = val.toLowerCase();
+  if (lc.includes("nyala")) return "on";
+  if (lc.includes("mati")) return "off";
+  if (lc.includes("rendah")) return "rendah";
+  if (lc.includes("penuh")) return "penuh";
+  if (lc.includes("trip")) return "trip";
+  return "";
+}
+
+function createTableHTML(dataArr, key) {
+  if (!dataArr.length) return "Data tidak tersedia.";
+  const headers = getHeaders(key);
+  const cells = dataArr[0].split(",").slice(0, headers.length);
+  const now = new Date();
+
+  const row = cells.map((val, i) => {
+    let cls = "";
+    if (i === 0) {
+      const t = new Date(val.replace(/-/g,"/"));
+      if (!isNaN(t)) {
+        const diff = (now - t) / 60000;
+        if (diff > STALE_LIMIT_MINUTES) cls = "time-stale";
       }
-      if (key === "kantin") {
-        if (i === 1) return lc.includes("nyala") ? "on" : "off";
-        if (i === 2) {
-          if (lc.includes("rendah")) return "rendah";
-          if (lc.includes("penuh")) return "penuh";
-          return "normal";
-        }
-        if (i === 4) return lc.includes("trip") ? "trip" : "mcb-normal";
-      }
-      if (key === "lt6") {
-        if (i === 1) {
-          if (lc.includes("rendah")) return "rendah";
-          if (lc.includes("penuh")) return "penuh";
-          return "normal";
-        }
-      }
-      return "";
     }
+    const status = applyStatus(val, key, i);
+    return `<td class="${cls}">${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
+  }).join("");
 
-    function getHeaders(key) {
-      if (key === "joglo") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","RSSI","IP Address"];
-      if (key === "kantin") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","MCB","RSSI","IP Address"];
-      if (key === "lt6") return ["Waktu","Level Tandon"];
-      return [];
-    }
+  return `
+  <div class="table-container">
+    <table>
+      <tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
+      <tr>${row}</tr>
+    </table>
+  </div>`;
+}
 
-    function createTableHTML(dataArr, key) {
-      if (!dataArr.length) return "Data tidak tersedia.";
-      const headers = getHeaders(key);
-      const cells = dataArr[0].split(",").slice(0, headers.length);
+function fetchCSV(url, key) {
+  fetch(url).then(r=>r.text()).then(t=>{
+    const row = t.trim().split("\n").slice(1,2);
+    document.getElementById("table-"+key).innerHTML = createTableHTML(row, key);
+    document.getElementById("update-"+key).textContent =
+      "Terakhir update: " + new Date().toLocaleTimeString("id-ID");
+    document.getElementById("loader-"+key).style.display="none";
+  });
+}
 
-      const rowHTML = cells.map((val, i) => {
-        const status = applyStatus(val, key, i);
-        const changed = lastData[key][i] !== undefined && lastData[key][i] !== val;
-        lastData[key][i] = val;
-        return `<td class="${changed ? "changed" : ""}">${status ? `<span class="badge ${status}">${val}</span>` : val}</td>`;
-      }).join("");
+function refreshAll(){
+  fetchCSV(sources.joglo,"joglo");
+  fetchCSV(sources.kantin,"kantin");
+  fetchCSV(sources.lt6,"lt6");
+}
 
-      return `
-        <div class="table-container">
-          <table>
-            <tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
-            <tr>${rowHTML}</tr>
-          </table>
-        </div>`;
-    }
+function toggleDarkMode(){
+  document.body.classList.toggle("dark");
+}
 
-    function updateTimeText(id) {
-      const now = new Date().toLocaleTimeString("id-ID");
-      document.getElementById(id).textContent = "Terakhir update: " + now;
-    }
-
-    function fetchAndDisplayCSV(url, key) {
-      const tableId = "table-" + key;
-      const loaderId = "loader-" + key;
-      const updateId = "update-" + key;
-      document.getElementById(loaderId).style.display = "inline-block";
-
-      fetch(url)
-        .then(res => res.text())
-        .then(data => {
-          const rows = data.trim().split("\n").slice(1, 2);
-          document.getElementById(tableId).innerHTML = createTableHTML(rows, key);
-          updateTimeText(updateId);
-          document.getElementById(loaderId).style.display = "none";
-        })
-        .catch(() => {
-          document.getElementById(tableId).innerHTML = "<i style='color:red'>Gagal memuat data.</i>";
-          document.getElementById(loaderId).style.display = "none";
-        });
-    }
-
-    function refreshAll() {
-      fetchAndDisplayCSV(sources.joglo, "joglo");
-      fetchAndDisplayCSV(sources.kantin, "kantin");
-      fetchAndDisplayCSV(sources.lt6, "lt6");
-    }
-
-    function toggleDarkMode() {
-      document.body.classList.toggle("dark");
-      const btn = document.querySelector(".toggle-dark");
-      const isDark = document.body.classList.contains("dark");
-      btn.textContent = isDark ? "☀️" : "🌙";
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme === "dark") {
-        document.body.classList.add("dark");
-        document.querySelector(".toggle-dark").textContent = "☀️";
-      } else {
-        document.querySelector(".toggle-dark").textContent = "🌙";
-      }
-      refreshAll();
-      setInterval(refreshAll, 10000);
-    });
-  </script>
+refreshAll();
+setInterval(refreshAll, 10000);
+</script>
 </body>
 </html>
