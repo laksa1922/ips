@@ -260,12 +260,12 @@
       return "";
     }
 
-    function getHeaders(key) {
-      if (key === "joglo") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","RSSI","IP Address"];
-      if (key === "kantin") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","MCB","RSSI","IP Address"];
-      if (key === "lt6") return ["Waktu","Level Tandon"];
-      return [];
-    }
+function getHeaders(key) {
+  if (key === "joglo") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","RSSI","IP Address"];
+  if (key === "kantin") return ["Waktu","Status Pompa","Level Tandon","Suhu Pompa","MCB","RSSI","IP Address"];
+  if (key === "lt6") return ["Waktu","Level Tandon","RSSI","IP Address"];
+  return [];
+}
 
     function createTableHTML(dataArr, key) {
       if (!dataArr.length) return "Data tidak tersedia.";
