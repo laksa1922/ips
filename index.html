@@ -57,6 +57,43 @@
       font-style: italic;
     }
 
+/* ===== HEADER LOGO ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 25px 15px 15px;
+  border-bottom: 2px solid var(--accent-light);
+  position: relative;
+}
+
+.logo-rs {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.header-content {
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .logo-rs {
+    width: 50px;
+    height: 50px;
+  }
+
+  .header h1 {
+    font-size: 1.4em;
+  }
+
+  .header p {
+    font-size: 0.9em;
+  }
+}
+    
     /* ===== FOOTER ===== */
     .footer {
       text-align: center;
@@ -193,10 +230,30 @@
   <button class="toggle-dark" onclick="toggleDarkMode()">🌙</button>
 
   <!-- HEADER -->
-  <div class="header">
-    <h1>⚙️ Monitoring Pompa & Tandon</h1>
-    <p>Sistem Pemantauan Cerdas Real-time</p>
+<div class="header">
+  <img
+    src="https://laksa1922.github.io/ips/logo_rs.png"
+    alt="Logo RS"
+    class="logo-rs"
+  >
+
+  <div class="header-content">
+    <h1>MONITORING POMPA & TANDON</h1>
+    <p>Rumah Sakit Adi Husada Kapasari • Real-Time Monitoring System</p>
   </div>
+</div>
+
+  .logo-rs{
+  width:70px;
+  height:70px;
+  object-fit:contain;
+  filter: drop-shadow(0 0 8px rgba(52,152,219,.4));
+  transition:.3s;
+}
+
+.logo-rs:hover{
+  transform:scale(1.08) rotate(3deg);
+}
 
   <div class="card" id="section-joglo">
     <div class="card-header">📍 Joglo <div class="loader" id="loader-joglo"></div></div>
