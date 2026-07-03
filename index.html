@@ -174,6 +174,12 @@
       100% { background: transparent; }
     }
 
+    
+    .stale-card{border:3px solid #e53935!important;box-shadow:0 0 18px rgba(229,57,53,.35);}
+    .stale-update{background:#e53935;color:#fff!important;padding:8px 12px;border-radius:8px;font-weight:bold;animation:blinkRed 1s infinite;}
+    @keyframes blinkRed{0%,100%{opacity:1;}50%{opacity:.45;}}
+
+
     @media (max-width: 768px) {
       table, th, td { font-size: 0.8em; }
     }
@@ -230,6 +236,7 @@
     };
 
     const lastData = { joglo: [], kantin: [], lt6: [] };
+const MAX_DELAY_MINUTES=30;
 
     function applyStatus(val, key, i) {
       const lc = val.toLowerCase();
@@ -293,6 +300,27 @@ function getHeaders(key) {
       document.getElementById(id).textContent = "Terakhir update: " + now;
     }
 
+
+    function checkDataAge(sheetTime,key){
+      const p=sheetTime.trim().split(" ");
+      if(p.length<2)return;
+      const d=p[0].split("/");
+      const t=p[1].split(":");
+      const dataDate=new Date(+d[2],+d[1]-1,+d[0],+t[0],+t[1],+t[2]);
+      const diff=(new Date()-dataDate)/60000;
+      const card=document.getElementById("section-"+key);
+      const upd=document.getElementById("update-"+key);
+      if(diff>=MAX_DELAY_MINUTES){
+        card.classList.add("stale-card");
+        upd.classList.add("stale-update");
+        upd.innerHTML="🔴 DATA BERHENTI ("+Math.floor(diff)+" menit)<br>Update terakhir : "+sheetTime;
+      }else{
+        card.classList.remove("stale-card");
+        upd.classList.remove("stale-update");
+        updateTimeText("update-"+key);
+      }
+    }
+
     function fetchAndDisplayCSV(url, key) {
       const tableId = "table-" + key;
       const loaderId = "loader-" + key;
@@ -303,8 +331,9 @@ function getHeaders(key) {
         .then(res => res.text())
         .then(data => {
           const rows = data.trim().split("\n").slice(1, 2);
+          const waktuSheet=rows[0].split(",")[0];
           document.getElementById(tableId).innerHTML = createTableHTML(rows, key);
-          updateTimeText(updateId);
+          checkDataAge(waktuSheet,key);
           document.getElementById(loaderId).style.display = "none";
         })
         .catch(() => {
