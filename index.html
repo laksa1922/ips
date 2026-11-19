@@ -127,11 +127,31 @@
       color: var(--muted);
     }
     .header-actions {
-      display: none;
+      display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       flex: 0 0 auto;
+      margin-top: 14px;
     }
+    /* Tombol link ke dashboard suhu ruang operasi */
+    .link-ro {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: var(--accent-light);
+      color: #fff;
+      font-size: 0.85em;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 6px 16px -6px var(--accent-light);
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    .link-ro:hover { transform: scale(1.05); }
 
     /* ===== FOOTER ===== */
     .footer {
@@ -160,7 +180,7 @@
       box-shadow: 0 6px 18px -6px var(--card-shadow);
       transition: transform 0.25s, background 0.3s;
     }
-    .toggle-dark { position: fixed; top: 16px; right: 16px; z-index: 1000; }
+    .toggle-dark { position: static; }
     .toggle-dark:hover { transform: rotate(18deg) scale(1.06); }
     .toggle-full:hover { transform: scale(1.06); }
     .toggle-dark:focus-visible, .toggle-full:focus-visible { outline: 3px solid var(--accent-light); outline-offset: 2px; }
@@ -350,7 +370,7 @@
       .live { margin-bottom: 6px; }
       .header h1 { font-size: clamp(1.45rem, 2.2vw, 2rem); }
       .header p { margin: 3px 0 0; font-size: 0.92rem; }
-      .header-actions { display: flex; }
+      .header-actions { display: flex; margin-top: 0; }
       /* Tombol pindah dari pojok fixed ke dalam header */
       .toggle-dark { position: static; width: 40px; height: 40px; }
       .toggle-full { width: 40px; height: 40px; }
@@ -435,6 +455,7 @@
         <p>Sistem Pemantauan Cerdas Real-time</p>
       </div>
       <div class="header-actions">
+        <a class="link-ro" href="https://laksa1922.github.io/ruanganok/" target="_blank" rel="noopener">🌡️ Ruang Operasi</a>
         <button class="toggle-full" onclick="toggleFullscreen()" aria-label="Layar penuh" title="Layar penuh">⛶</button>
         <button class="toggle-dark" onclick="toggleDarkMode()" aria-label="Ganti mode tampilan">🌙</button>
       </div>
